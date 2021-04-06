@@ -33,7 +33,7 @@ namespace WebsiteCertificateChecker
         {
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
-                //.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true)
+                .AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true)
                 .Build();
 
             return configuration.GetSection("Websites").Get<List<string>>();
