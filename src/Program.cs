@@ -49,7 +49,7 @@ namespace WebsiteCertificateChecker
 
             try
             {
-                using var response = (HttpWebResponse)request.GetResponse();
+                using var response = request.GetResponse();
                 WriteLine("Certificate OK", ConsoleColor.DarkGreen);
             }
             catch
@@ -63,7 +63,7 @@ namespace WebsiteCertificateChecker
 
         private static bool ServerCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
-            WriteLine($"Certificate valid from {certificate.GetEffectiveDateString()} until {certificate.GetExpirationDateString()}", ConsoleColor.DarkGray);
+            WriteLine($"Certificate is valid from {certificate.GetEffectiveDateString()} until {certificate.GetExpirationDateString()}", ConsoleColor.DarkGray);
             return sslPolicyErrors == SslPolicyErrors.None;
         }
 
