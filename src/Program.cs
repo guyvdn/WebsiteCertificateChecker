@@ -45,17 +45,15 @@ namespace WebsiteCertificateChecker
 
             var request = WebRequest.CreateHttp(website);
 
-            request.ServerCertificateValidationCallback += ServerCertificateValidationCallback;
-
             try
             {
+                request.ServerCertificateValidationCallback += ServerCertificateValidationCallback;
                 using var response = request.GetResponse();
-                WriteLine("Certificate OK", ConsoleColor.DarkGreen);
             }
-            catch
+            catch (Exception e)
             {
+                WriteLine("Error getting response: " + e.Message, ConsoleColor.DarkRed);
                 _errorCount++;
-                WriteLine("Certificate NOT OK", ConsoleColor.DarkRed);
             }
 
             WriteLine(new string('-', LineWidth), ConsoleColor.DarkCyan);
@@ -64,7 +62,24 @@ namespace WebsiteCertificateChecker
         private static bool ServerCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             WriteLine($"Certificate is valid from {certificate.GetEffectiveDateString()} until {certificate.GetExpirationDateString()}", ConsoleColor.DarkGray);
-            return sslPolicyErrors == SslPolicyErrors.None;
+            
+            if (sslPolicyErrors != SslPolicyErrors.None)
+            {
+                WriteLine("Certificate NOT OK", ConsoleColor.DarkRed);
+                _errorCount++;
+                return true;
+            }
+
+            var cert2 = new X509Certificate2(certificate);
+            if (cert2.NotAfter <= DateTime.Now.AddDays(7))
+            {
+                WriteLine("Certificate about to expire", ConsoleColor.DarkMagenta);
+                _errorCount++;
+                return true;
+            }
+
+            WriteLine("Certificate OK", ConsoleColor.DarkGreen);
+            return true;
         }
 
         private static void WriteLine(object value, ConsoleColor color)
